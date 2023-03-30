@@ -9,6 +9,7 @@ router.route("/register").post(registerUser)
 router.route("/login").post(loginUser)
 router.route("/all").get(getUsers)
 router.route("/me").get(isAuthenticatedUser,getUserDetails)
+router.route("/logout").get(logoutUser)
 
 
 

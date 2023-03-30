@@ -7,8 +7,6 @@ const cloudinary = require('cloudinary')
 
 
 exports.registerUser = catchAsyncError(async (req, res, next) => {
-
-
     const isUser = await User.findOne({ email: req.body.email })
     if (isUser) {
         return next(new ErrorHandler("Email Already Exist", 401))
@@ -23,7 +21,6 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
 // LOGIN USER
 exports.loginUser = catchAsyncError(async (req, res, next) => {
-
     const { email, password } = req.body;
     if (!email || !password) {
         return next(new ErrorHandler("Please enter email and password", 400))
@@ -43,12 +40,10 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
 
 // Logout User
 exports.logoutUser = catchAsyncError(async (req, res, next) => {
-
     res.cookie("token", null, {
         expires: new Date(Date.now()),
         httpOnly: true,
     });
-
     res.status(200).json({
         success: true,
         message: "User logged Out",
@@ -59,7 +54,6 @@ exports.logoutUser = catchAsyncError(async (req, res, next) => {
 // Get User Detail
 exports.getUserDetails = catchAsyncError(async (req, res, next) => {
     const user = await User.findById(req.user.id);
-
     res.status(200).json({
         success: true,
         user,
@@ -69,7 +63,6 @@ exports.getUserDetails = catchAsyncError(async (req, res, next) => {
 
 // get users 
 exports.getUsers = catchAsyncError(async (req, res) => {
-
     const users = await User.find()
     res.status(201).json({
         success: true,
