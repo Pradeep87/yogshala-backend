@@ -4,7 +4,7 @@ const { registerUser } = require('../controllers/user')
 
 
 
-router.route("/register").get(registerUser)
+router.route("/register").post(registerUser)
 
 
 

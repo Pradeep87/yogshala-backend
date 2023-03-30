@@ -1,19 +1,21 @@
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
-
-
-
+const mongoose = require("mongoose");
 
 const connectDatabase = () => {
     const uri = "mongodb+srv://Pradeep:DXFpHCF0SPnlzGxb@yogshalacluster.4shslk2.mongodb.net/?retryWrites=true&w=majority";
-
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-    client.connect(err => {
-        console.log(err)
-        const collection = client.db("test").collection("devices");
-        client.close();
+    mongoose.connect(uri,
+        {
+            useNewUrlParser: true,
+          useUnifiedTopology: true
+        }
+      );
+    
+    
+      const db = mongoose.connection;
+    db.on("error", console.error.bind(console, "connection error: "));
+    db.once("open", function () {
+      console.log("Connected successfully");
     });
-    console.log("mongodb:: connected")
+
 }
 
 
@@ -21,6 +23,10 @@ module.exports = { connectDatabase };
 
 
 
-//
+// useFindAndModify: false,
 
 // DXFpHCF0SPnlzGxb  
+
+
+
+
