@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     },
     birthDay: {
         type: Date,
-        required: [true, "Please Enter Your Date of Birth"],
+        required: [false, "Please Enter Your Date of Birth"],
     },
     role: {
         type: String,

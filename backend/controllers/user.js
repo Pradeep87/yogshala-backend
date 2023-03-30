@@ -1,12 +1,10 @@
 const User = require("../models/user")
+const catchAsyncError = require("../middelwares/catchAsyncError")
 
-exports.registerUser = async (req, res) => {
-    try {
-        console.log("controller")
-        const user = await User.create(req.body)
-        res.send(req.body)
-    } catch (error) {
+exports.registerUser = catchAsyncError(async (req, res) => {
+console.log("controolr")
+    const user = await User.create(req.body)
+    res.send(user)
 
-    }
 
-}
+})
