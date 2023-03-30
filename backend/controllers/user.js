@@ -7,14 +7,16 @@ const cloudinary = require('cloudinary')
 
 
 exports.registerUser = catchAsyncError(async (req, res, next) => {
-    const email = req.body.email
-    const isExistUser = await User.find({ email })
-    if (isExistUser) {
-        return next(new ErrorHandler("User already exist", 400))
 
+
+    const isUser = await User.findOne({ email: req.body.email })
+    if (isUser) {
+        return next(new ErrorHandler("Email Already Exist", 401))
+    } else {
+        const user = await User.create(req.body)
+        sendToken(user, 201, res);
     }
-    const user = await User.create(req.body)
-    sendToken(user, 201, res);
+
 })
 
 

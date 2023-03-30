@@ -37,5 +37,3 @@ module.exports = { connectDatabase };
 
 // module.exports = { connectDatabase };
 // .env example
-// PORT=4000
-// PASSWORD=DXFpHCF0SPnlzGxb
