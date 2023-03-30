@@ -4,11 +4,7 @@ const password = process.env.PASSWORD
 
 const connectDatabase = () => {
   const uri = `mongodb+srv://Pradeep:${password}@yogshalacluster.4shslk2.mongodb.net/?retryWrites=true&w=majority`;
-  mongoose.connect(uri,
-    {
-      useNewUrlParser: true,
-    }
-  );
+  mongoose.connect(uri,{useNewUrlParser: true,});
   const db = mongoose.connection;
   db.on("error", console.error.bind(console, "connection error: "));
   db.once("open", function () {
