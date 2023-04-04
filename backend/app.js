@@ -2,12 +2,13 @@
 const express = require("express")
 require('dotenv').config();
 const app = express()
-const errorMiddelware=require('./middelwares/error')
-const cookieParser=require('cookie-parser');
-const bodyparser=require('body-parser');
+const errorMiddelware = require('./middelwares/error')
+const cookieParser = require('cookie-parser');
+const bodyparser = require('body-parser');
 const fileUpload = require("express-fileupload");
 
 const userRoutes = require("./routes/user")
+const postRoutes = require("./routes/post")
 
 app.use(cookieParser());
 app.use(express.json())
@@ -17,6 +18,7 @@ app.use(fileUpload());
 
 
 app.use("/api/user", userRoutes)
+app.use("/api/post", postRoutes)
 
 
 
