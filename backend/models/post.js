@@ -21,7 +21,14 @@ const postSchema = new mongoose.Schema({
             default: "img.png"
         },
     },
-
+    likes: [{
+        type: mongoose.Schema.ObjectId,
+        ref: "Like",
+    }],
+    comments: [{
+        type: mongoose.Schema.ObjectId,
+        ref: "Comment",
+    }],
     likesCount: {
         type: Number,
         default: 0,
