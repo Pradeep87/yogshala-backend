@@ -1,12 +1,7 @@
 const Post = require("../models/post")
 const Like = require("../models/likes")
 const Comment = require("../models/comments")
-
 const catchAsyncError = require("../middelwares/catchAsyncError")
-const ErrorHandler = require("../utils/errorHandler");
-const sendToken = require('../utils/jwtToken')
-const cloudinary = require('cloudinary')
-
 
 
 
