@@ -16,7 +16,8 @@ const commentSchema = new mongoose.Schema({
         default: "like"
     },
     visibility: {
-
+        type: Boolean,
+        default: true
     },
     createdAt: {
         type: Date,
