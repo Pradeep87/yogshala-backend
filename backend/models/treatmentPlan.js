@@ -21,9 +21,9 @@ const treatmentPlanSchema = new mongoose.Schema({
         ref: 'HealthIssue',
         required: true,
     },
-    yogaTeacher: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'YogaTeacher',
+        ref: 'User',
         required: true,
     },
 });

@@ -9,6 +9,8 @@ const fileUpload = require("express-fileupload");
 
 const userRoutes = require("./routes/user")
 const postRoutes = require("./routes/post")
+const healthIssueRoutes = require("./routes/healthIssue")
+const treatmentPlan = require("./routes/treatmentPlan")
 
 app.use(cookieParser());
 app.use(express.json())
@@ -19,6 +21,8 @@ app.use(fileUpload());
 
 app.use("/api/user", userRoutes)
 app.use("/api/post", postRoutes)
+app.use("/api/healthissue", healthIssueRoutes)
+app.use("/api/treatmentPlan", treatmentPlan)
 
 
 
