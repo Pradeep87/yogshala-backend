@@ -33,3 +33,16 @@ exports.createTreatmentPlan = catchAsyncError(async (req, res, next) => {
         plan
     })
 })
+
+
+exports.getTreatmentPlan = catchAsyncError(async (req, res, next) => {
+    const plans = await TreatmentPlan.find({ user: req.user._id })
+        .populate({ path: 'healthIssue', select: '-treatmentPlans', populate: { path: 'user' } }).populate("user")
+
+    res.json({
+        success: true,
+        plans
+    })
+}
+
+)
