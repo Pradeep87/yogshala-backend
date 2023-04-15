@@ -27,6 +27,10 @@ const healthIssueSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'TreatmentPlan',
     }],
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 const HealthIssue = mongoose.model('HealthIssue', healthIssueSchema);

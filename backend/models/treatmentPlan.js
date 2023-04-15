@@ -26,6 +26,10 @@ const treatmentPlanSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 const TreatmentPlan = mongoose.model('TreatmentPlan', treatmentPlanSchema);
