@@ -91,12 +91,17 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 // // update User Profile Cover
 
 exports.updateProfileCover = catchAsyncError(async (req, res, next) => {
+  console.log(req.body.cover)
+  console.log("sdfjlkjflksdjfj")
+
+
   const user = await User.findById(req.user.id);
   const imageId = user.coverPhoto.public_id;
 
+
   await cloudinary.v2.uploader.destroy(imageId);
 
-  const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+  const myCloud = await cloudinary.v2.uploader.upload(req.body.cover, {
     folder: "coverPhoto",
     // width: 1200,
     // height: 628,
