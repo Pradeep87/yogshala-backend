@@ -2,6 +2,7 @@ const Post = require("../models/post")
 const Like = require("../models/likes")
 const Comment = require("../models/comments")
 const catchAsyncError = require("../middelwares/catchAsyncError")
+const cloudinary = require("cloudinary");
 
 
 
@@ -44,14 +45,55 @@ exports.doLike = catchAsyncError(async (req, res, next) => {
 
 
 exports.doPost = catchAsyncError(async (req, res, next) => {
-    const post = await Post.create({ user: req.user._id, ...req.body })
-    res.json({
+
+    const post = req.body
+    const user = req.user._id
+    if (req.body.postMedia) {
+        const myCloud = await cloudinary.v2.uploader.upload(req.body.postMedia, {
+            folder: "posts",
+            // width: 180,
+            // height: 180,
+            crop: "scale",
+        });
+
+        post.postMedia = {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+        }
+    }
+
+    const newpost = await Post.create({ user, ...post })
+    res.status(201).json({
         success: true,
-        post
+        message: "Post Created Successfully",
+        newpost
     })
 })
 
+// exports.createPost = catchAsyncErrors(async (req, res) => {
 
+//     const post = req.body
+//     const user = req.user._id
+//     if (req.body.postMedia) {
+//         const myCloud = await cloudinary.v2.uploader.upload(req.body.postMedia, {
+//             folder: "posts",
+//             // width: 180,
+//             // height: 180,
+//             crop: "scale",
+//         });
+
+//         post.postMedia = {
+//             public_id: myCloud.public_id,
+//             url: myCloud.secure_url,
+//         }
+//     }
+//     const newpost = await Post.create({ user, ...post })
+//     res.status(201).json({
+//         success: true,
+//         message: "Post Uploaded Successfully",
+//         newpost
+//     })
+// })
 
 exports.getUserPost = catchAsyncError(async (req, res, next) => {
     const posts = await Post.find({ user: req.user._id }).populate('likes').populate('comments')
