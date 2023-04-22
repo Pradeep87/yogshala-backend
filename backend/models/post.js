@@ -12,13 +12,13 @@ const postSchema = new mongoose.Schema({
     postMedia: {
         public_id: {
             type: String,
-            default: "imgId",
             required: true,
+            default: null,
         },
         url: {
             type: String,
             required: true,
-            default: "img.png"
+            default: null
         },
     },
     likes: [{
