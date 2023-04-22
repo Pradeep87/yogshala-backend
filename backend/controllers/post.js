@@ -70,33 +70,8 @@ exports.doPost = catchAsyncError(async (req, res, next) => {
     })
 })
 
-// exports.createPost = catchAsyncErrors(async (req, res) => {
-
-//     const post = req.body
-//     const user = req.user._id
-//     if (req.body.postMedia) {
-//         const myCloud = await cloudinary.v2.uploader.upload(req.body.postMedia, {
-//             folder: "posts",
-//             // width: 180,
-//             // height: 180,
-//             crop: "scale",
-//         });
-
-//         post.postMedia = {
-//             public_id: myCloud.public_id,
-//             url: myCloud.secure_url,
-//         }
-//     }
-//     const newpost = await Post.create({ user, ...post })
-//     res.status(201).json({
-//         success: true,
-//         message: "Post Uploaded Successfully",
-//         newpost
-//     })
-// })
-
 exports.getUserPost = catchAsyncError(async (req, res, next) => {
-    const posts = await Post.find({ user: req.user._id }).populate('likes').populate('comments')
+    const posts = await Post.find({ user: req.user._id }).sort({ createdAt: -1 }).populate('likes').populate('comments')
     res.json({
         success: true,
         total: posts.length,
