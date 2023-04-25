@@ -10,6 +10,7 @@ const cloudinary = require("cloudinary");
 exports.getUserData = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.id).select("-password");
   const posts = await Post.find({ user: req.params.id })
+    .sort({ createdAt: -1 })
     .populate({
       path: "comments",
       populate: {
