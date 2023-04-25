@@ -8,8 +8,20 @@ const sendToken = require("../utils/jwtToken");
 const cloudinary = require("cloudinary");
 
 exports.getUserData = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.params.id).select('-password');
-  const posts = await Post.find({ user: req.params.id });
+  const user = await User.findById(req.params.id).select("-password");
+  const posts = await Post.find({ user: req.params.id })
+    .populate({
+      path: "comments",
+      populate: {
+        path: "user",
+        select: ["avatar", "firstName", "surname", "_id"],
+      },
+    })
+    .populate("likes")
+    .populate({
+      path: "user",
+      select: ["avatar", "_id", "firstName", "surname"],
+    });
   const healthIssues = await HealthIssue.find({ user: req.params.id });
   res.status(200).json({
     success: true,
