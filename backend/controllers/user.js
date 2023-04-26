@@ -4,6 +4,8 @@ const ErrorHandler = require("../utils/errorHandler");
 const sendToken = require("../utils/jwtToken");
 const cloudinary = require("cloudinary");
 
+
+
 exports.registerUser = catchAsyncError(async (req, res, next) => {
   const isUser = await User.findOne({ email: req.body.email });
   if (isUser) {
@@ -16,6 +18,9 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
 // LOGIN USER
 exports.loginUser = catchAsyncError(async (req, res, next) => {
+
+  const pusher = req.app.get('pusher');
+
   const { email, password } = req.body;
   if (!email || !password) {
     return next(new ErrorHandler("Please enter email and password", 400));
@@ -28,6 +33,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   if (!isPasswordMatch) {
     return next(new ErrorHandler("Invalid email or password ", 401));
   }
+  pusher.trigger('my-channel', 'user-online', { user: { ...user, status: "online" } });
   sendToken(user, 200, res);
 });
 
