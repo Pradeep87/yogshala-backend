@@ -18,8 +18,9 @@ exports.doComment = catchAsyncError(async (req, res, next) => {
     { new: true }
   );
   pusher.trigger(`post-${req.user._id}`, "comment", {
-    post,
-    message: `${req.user.firstName} commented on a post`,
+    redirectTo: post,
+    notifType: "comment",
+    message: `${req.user.firstName} ${req.user.surname} commented on a post`,
   });
   res.json({
     success: true,
