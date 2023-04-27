@@ -73,3 +73,25 @@ exports.getUserPost = catchAsyncError(async (req, res, next) => {
     posts,
   });
 });
+
+exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
+  const posts = await Post.find({})
+  .sort({ createdAt: -1 })
+  .populate({
+    path: "comments",
+    populate: {
+      path: "user",
+      select: ["avatar", "firstName", "surname", "_id"],
+    },
+  })
+  .populate("likes")
+  .populate({
+    path: "user",
+    select: ["avatar", "_id", "firstName", "surname"],
+  });
+  res.json({
+    success: true,
+    total: posts.length,
+    posts,
+  });
+});
