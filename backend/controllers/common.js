@@ -13,10 +13,16 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
-      populate: {
+      populate: [{
         path: "user",
         select: ["avatar", "firstName", "surname", "_id"],
-      },
+      }, {
+        path: "replies",
+        populate: {
+          path: "user",
+          select: ["avatar", "firstName", "surname", "_id"],
+        },
+      },]
     })
     .populate("likes")
     .populate({
@@ -38,7 +44,7 @@ exports.getUserNotification = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
   res.status(200).json({
     success: true,
-    total:notification.length,
+    total: notification.length,
     notification
   });
 });
