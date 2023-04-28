@@ -28,8 +28,7 @@ exports.doComment = catchAsyncError(async (req, res, next) => {
       message: `${req.user.firstName} ${req.user.surname} commented on your Post`,
     }
     const isCreated = await Notification.create(notification)
-    console.log(isCreated)
-    pusher.trigger(`post-${req.user._id}`, "comment", isCreated);
+    pusher.trigger(`post-${isPost.user}`, "comment", isCreated);
   }
 
 

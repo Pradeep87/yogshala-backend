@@ -38,6 +38,7 @@ exports.getUserNotification = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
   res.status(200).json({
     success: true,
+    total:notification.length,
     notification
   });
 });
