@@ -7,19 +7,19 @@ const Notification = require('../models/notification')
 
 exports.doComment = catchAsyncError(async (req, res, next) => {
   const pusher = req.app.get("pusher");
-  const { post, commentContent } = req.body;
+  const { post, commentContent,parentCommentId } = req.body;
+
+if(!parentCommentId){
   const comment = await Comment.create({
     user: req.user._id,
     post,
     commentContent,
   });
-
   const isPost = await Post.findByIdAndUpdate(
     comment.post,
     { $push: { comments: comment._id }, $inc: { commentsCount: 1 } },
     { new: true }
   );
-
   if (req.user._id.toString() !== isPost.user.toString()) {
     const notification = {
       user: isPost.user,
@@ -30,12 +30,46 @@ exports.doComment = catchAsyncError(async (req, res, next) => {
     const isCreated = await Notification.create(notification)
     pusher.trigger(`post-${isPost.user}`, "comment", isCreated);
   }
-
-
   res.json({
     success: true,
     message: "Comment Added",
   });
+}else{
+
+  const parentComment = await Comment.findById(parentCommentId);
+
+  if (!parentComment) {
+    return res.status(404).json({
+      success: false,
+      message: "Parent comment not found",
+    });
+  }
+
+  const reply = await Comment.create({
+    user: req.user._id,
+    post,
+    commentContent,
+    parentComment: parentCommentId,
+  });
+
+  parentComment.replies.push(reply._id);
+  await parentComment.save();
+  if (req.user._id.toString() !== parentComment.user.toString()) {
+    const notification = {
+      user: parentComment.user,
+      redirectPath: post,
+      notifType: "comment",
+      message: `${req.user.firstName} ${req.user.surname} replies on your comment`,
+    }
+    const isCreated = await Notification.create(notification)
+    pusher.trigger(`post-${parentComment.user}`, "comment", isCreated);
+  }
+  res.json({
+    success: true,
+    message: "Reply added",
+  });
+}
+ 
 });
 
 exports.doLike = catchAsyncError(async (req, res, next) => {
