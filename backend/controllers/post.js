@@ -3,6 +3,7 @@ const Like = require("../models/likes");
 const Comment = require("../models/comments");
 const catchAsyncError = require("../middelwares/catchAsyncError");
 const cloudinary = require("cloudinary");
+const Notification = require('../models/notification')
 
 exports.doComment = catchAsyncError(async (req, res, next) => {
   const pusher = req.app.get("pusher");
@@ -12,16 +13,25 @@ exports.doComment = catchAsyncError(async (req, res, next) => {
     post,
     commentContent,
   });
-  await Post.findByIdAndUpdate(
+
+  const isPost = await Post.findByIdAndUpdate(
     comment.post,
     { $push: { comments: comment._id }, $inc: { commentsCount: 1 } },
     { new: true }
   );
-  pusher.trigger(`post-${req.user._id}`, "comment", {
-    redirectTo: post,
-    notifType: "comment",
-    message: `${req.user.firstName} ${req.user.surname} commented on a post`,
-  });
+
+  if (req.user._id.toString() !== isPost.user.toString()) {
+    const notification = {
+      user: isPost.user,
+      redirectPath: post,
+      notifType: "comment",
+      message: `${req.user.firstName} ${req.user.surname} commented on your Post`,
+    }
+    const isCreated = await Notification.create(notification)
+    pusher.trigger(`post-${req.user._id}`, "comment", isCreated);
+  }
+
+
   res.json({
     success: true,
     message: "Comment Added",
@@ -76,19 +86,19 @@ exports.getUserPost = catchAsyncError(async (req, res, next) => {
 
 exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
   const posts = await Post.find({})
-  .sort({ createdAt: -1 })
-  .populate({
-    path: "comments",
-    populate: {
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "comments",
+      populate: {
+        path: "user",
+        select: ["avatar", "firstName", "surname", "_id"],
+      },
+    })
+    .populate("likes")
+    .populate({
       path: "user",
-      select: ["avatar", "firstName", "surname", "_id"],
-    },
-  })
-  .populate("likes")
-  .populate({
-    path: "user",
-    select: ["avatar", "_id", "firstName", "surname"],
-  });
+      select: ["avatar", "_id", "firstName", "surname"],
+    });
   res.json({
     success: true,
     total: posts.length,
