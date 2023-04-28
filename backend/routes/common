@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { isAuthenticatedUser } = require("../middelwares/auth");
-const { getUserData } = require("../controllers/common");
+const { getUserData, getUserNotification } = require("../controllers/common");
 
-router.route("/:id").get(isAuthenticatedUser, getUserData);
+router.route("/notification").get(isAuthenticatedUser, getUserNotification);
+router.route("/profile/:id").get(isAuthenticatedUser, getUserData);
 
 module.exports = router;

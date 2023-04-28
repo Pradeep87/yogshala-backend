@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const HealthIssue = require("../models/healthIssues");
 const Post = require("../models/post");
-
+const Notification = require('../models/notification')
 const catchAsyncError = require("../middelwares/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const sendToken = require("../utils/jwtToken");
@@ -29,5 +29,15 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
     user,
     posts,
     healthIssues,
+  });
+});
+
+exports.getUserNotification = catchAsyncError(async (req, res, next) => {
+
+  const notification = await Notification.find({ user: req.user._id })
+    .sort({ createdAt: -1 })
+  res.status(200).json({
+    success: true,
+    notification
   });
 });
