@@ -28,7 +28,7 @@ if(!parentCommentId){
       message: `${req.user.firstName} ${req.user.surname} commented on your Post`,
     }
     const isCreated = await Notification.create(notification)
-    pusher.trigger(`post-${isPost.user}`, "comment", isCreated);
+    pusher.trigger(`post-${isPost.user}`, "onPost", isCreated);
   }
   res.json({
     success: true,
@@ -62,7 +62,7 @@ if(!parentCommentId){
       message: `${req.user.firstName} ${req.user.surname} replies on your comment`,
     }
     const isCreated = await Notification.create(notification)
-    pusher.trigger(`post-${parentComment.user}`, "comment", isCreated);
+    pusher.trigger(`post-${parentComment.user}`, "onPost", isCreated);
   }
   res.json({
     success: true,
@@ -73,18 +73,50 @@ if(!parentCommentId){
 });
 
 exports.doLike = catchAsyncError(async (req, res, next) => {
+  const pusher = req.app.get("pusher");
   const { post, reaction } = req.body;
+  const existingLike = await Like.findOne({ user: req.user._id, post });
+  if (existingLike) {
+    await Like.findByIdAndDelete(existingLike._id);
+    await Post.findByIdAndUpdate(
+      post,
+      { $pull: { likes: existingLike._id }, $inc: { likesCount: -1 } },
+      { new: true }
+    );
+    return res.json({
+      success: true,
+      message: 'Like removed successfully',
+    });
+  }
+
   const like = await Like.create({ user: req.user._id, post, reaction });
-  await Post.findByIdAndUpdate(
+const likedPost= await Post.findByIdAndUpdate(
     like.post,
     { $push: { likes: like._id }, $inc: { likesCount: 1 } },
     { new: true }
   );
+
+  if (req.user._id.toString() !== likedPost.user.toString()) {
+    const notification = {
+      user: likedPost.user,
+      redirectPath: post,
+      notifType: "like",
+      message: `${req.user.firstName} ${req.user.surname} liked your post`,
+    }
+    const isCreated = await Notification.create(notification)
+    pusher.trigger(`post-${likedPost.user}`, "onPost", isCreated);
+  }
   res.json({
     success: true,
     like,
-  });
+  }); 
 });
+
+
+
+
+
+
 
 exports.doPost = catchAsyncError(async (req, res, next) => {
   const post = req.body;
