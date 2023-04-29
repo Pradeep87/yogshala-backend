@@ -90,21 +90,21 @@ exports.doLike = catchAsyncError(async (req, res, next) => {
   }
 
   const like = await Like.create({ user: req.user._id, post, reaction });
-const likedPost= await Post.findByIdAndUpdate(
+const isPost= await Post.findByIdAndUpdate(
     like.post,
     { $push: { likes: like._id }, $inc: { likesCount: 1 } },
     { new: true }
   );
 
-  if (req.user._id.toString() !== likedPost.user.toString()) {
+  if (req.user._id.toString() !== isPost.user.toString()) {
     const notification = {
-      user: likedPost.user,
+      user: isPost.user,
       redirectPath: post,
-      notifType: "like",
-      message: `${req.user.firstName} ${req.user.surname} liked your post`,
+      notifType: "comment",
+      message: `${req.user.firstName} ${req.user.surname} liked your Post`,
     }
     const isCreated = await Notification.create(notification)
-    pusher.trigger(`post-${likedPost.user}`, "onPost", isCreated);
+    pusher.trigger(`post-${isPost.user}`, "onPost", isCreated);
   }
   res.json({
     success: true,
