@@ -160,7 +160,12 @@ exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
         select: ["avatar", "firstName", "surname", "_id"],
       },
     })
-    .populate("likes")
+    .populate({
+      path:"likes",
+      populate:{
+        path: "user",
+        select: ["avatar", "firstName", "surname", "_id"],
+      }})
     .populate({
       path: "user",
       select: ["avatar", "_id", "firstName", "surname"],

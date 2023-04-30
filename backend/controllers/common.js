@@ -24,7 +24,12 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
         },
       },]
     })
-    .populate("likes")
+    .populate({
+      path:"likes",
+      populate:{
+        path: "user",
+        select: ["avatar", "firstName", "surname", "_id"],
+      }})
     .populate({
       path: "user",
       select: ["avatar", "_id", "firstName", "surname"],
