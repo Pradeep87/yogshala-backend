@@ -29,3 +29,23 @@ exports.getHealthIssue = catchAsyncError(async (req, res, next) => {
     issues,
   });
 });
+
+
+exports.getTimelineIssues = catchAsyncError(async (req, res, next) => {
+  const issues = await HealthIssue.find({})
+    .populate({
+      path: "treatmentPlans",
+      populate: {
+        path: "user",
+        select: ["avatar", "firstName", "surname", "_id"],
+      },
+    })
+    .populate({
+      path: "user",
+      select: ["avatar", "firstName", "surname", "_id"],
+    });
+  res.json({
+    success: true,
+    issues,
+  });
+});

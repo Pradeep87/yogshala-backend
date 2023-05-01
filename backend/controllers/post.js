@@ -112,12 +112,6 @@ const isPost= await Post.findByIdAndUpdate(
   }); 
 });
 
-
-
-
-
-
-
 exports.doPost = catchAsyncError(async (req, res, next) => {
   const post = req.body;
   const user = req.user._id;
