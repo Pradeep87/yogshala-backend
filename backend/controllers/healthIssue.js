@@ -7,7 +7,7 @@ exports.createHealthIssue = catchAsyncError(async (req, res, next) => {
   await issue.save();
   res.json({
     success: true,
-    issue,
+    message:"Issue Created"
   });
 });
 
@@ -23,7 +23,7 @@ exports.getHealthIssue = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "user",
       select: ["avatar", "firstName", "surname", "_id"],
-    });
+    }).sort({ createdAt: -1 });
   res.json({
     success: true,
     issues,
@@ -43,7 +43,7 @@ exports.getTimelineIssues = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "user",
       select: ["avatar", "firstName", "surname", "_id"],
-    });
+    }).sort({ createdAt: -1 });
   res.json({
     success: true,
     issues,
