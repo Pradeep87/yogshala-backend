@@ -133,6 +133,22 @@ exports.doPost = catchAsyncError(async (req, res, next) => {
   });
 });
 
+
+
+exports.getPostById = catchAsyncError(async (req, res, next) => {
+  const post = await Post.findById({ _id:req.params.id })
+    .populate("likes")
+    .populate("comments");
+  res.json({
+    success: true,
+    post,
+  });
+});
+
+
+
+
+
 exports.getUserPost = catchAsyncError(async (req, res, next) => {
   const posts = await Post.find({ user: req.user._id })
     .populate("likes")
