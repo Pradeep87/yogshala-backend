@@ -53,3 +53,26 @@ exports.getUserNotification = catchAsyncError(async (req, res, next) => {
     notification
   });
 });
+
+
+exports.markNotificationAsSeen = async (req, res, next) => {
+  try {
+    const notificationId = req.params.id;
+    const notification = await Notification.findByIdAndUpdate(
+      notificationId,
+      { isSeen: true },
+      { new: true }
+    );
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found",
+      });
+    }
+    res.json({
+      success: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
