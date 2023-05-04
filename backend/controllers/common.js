@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const HealthIssue = require("../models/healthIssues");
 const Post = require("../models/post");
-const Notification = require('../models/notification')
+const Notification = require("../models/notification");
 const catchAsyncError = require("../middelwares/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const sendToken = require("../utils/jwtToken");
@@ -13,23 +13,27 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
-      populate: [{
-        path: "user",
-        select: ["avatar", "firstName", "surname", "_id"],
-      }, {
-        path: "replies",
-        populate: {
+      populate: [
+        {
           path: "user",
           select: ["avatar", "firstName", "surname", "_id"],
         },
-      },]
+        {
+          path: "replies",
+          populate: {
+            path: "user",
+            select: ["avatar", "firstName", "surname", "_id"],
+          },
+        },
+      ],
     })
     .populate({
-      path:"likes",
-      populate:{
+      path: "likes",
+      populate: {
         path: "user",
         select: ["avatar", "firstName", "surname", "_id"],
-      }})
+      },
+    })
     .populate({
       path: "user",
       select: ["avatar", "_id", "firstName", "surname"],
@@ -44,16 +48,22 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getUserNotification = catchAsyncError(async (req, res, next) => {
+  const notification = await Notification.find({ user: req.user._id }).sort({
+    createdAt: -1,
+  });
 
-  const notification = await Notification.find({ user: req.user._id })
-    .sort({ createdAt: -1 })
+  const unRead = await Notification.countDocuments({
+    user: req.user._id,
+    isSeen: false,
+  });
+
   res.status(200).json({
     success: true,
     total: notification.length,
-    notification
+    unRead,
+    notification,
   });
 });
-
 
 exports.markNotificationAsSeen = async (req, res, next) => {
   try {
