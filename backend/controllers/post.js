@@ -5,6 +5,26 @@ const catchAsyncError = require("../middelwares/catchAsyncError");
 const cloudinary = require("cloudinary");
 const Notification = require("../models/notification");
 
+exports.getCommentByPost = catchAsyncError(async (req, res, next) => {
+  const comments = await Comment.find({ post: req.params.id })
+    .populate({
+      path: "replies",
+      populate: {
+        path: "user",
+        select: ["avatar", "firstName", "surname", "_id"],
+      },
+    })
+    .populate({
+      path: "user",
+      select: ["avatar", "firstName", "surname", "_id"],
+    });
+
+  res.json({
+    success: true,
+    comments,
+  });
+});
+
 exports.doComment = catchAsyncError(async (req, res, next) => {
   const pusher = req.app.get("pusher");
   const { post, commentContent, parentCommentId } = req.body;

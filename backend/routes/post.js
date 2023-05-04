@@ -1,16 +1,22 @@
-const express = require("express")
-const router = express.Router()
-const { isAuthenticatedUser, authorizedRoles } = require("../middelwares/auth")
-const { doPost, getUserPost, doLike, doComment, getTimelinePost ,getPostById} = require('../controllers/post')
+const express = require("express");
+const router = express.Router();
+const { isAuthenticatedUser, authorizedRoles } = require("../middelwares/auth");
+const {
+  doPost,
+  getUserPost,
+  doLike,
+  doComment,
+  getTimelinePost,getCommentByPost,
+  getPostById,
+} = require("../controllers/post");
 
+router.route("/").post(isAuthenticatedUser, doPost);
+router.route("/").get(isAuthenticatedUser, getUserPost);
+router.route("/like").post(isAuthenticatedUser, doLike);
+router.route("/comment").post(isAuthenticatedUser, doComment);
+router.route("/comment/:id").get(isAuthenticatedUser, getCommentByPost);
 
-router.route("/").post(isAuthenticatedUser, doPost)
-router.route("/").get(isAuthenticatedUser, getUserPost)
-router.route("/like").post(isAuthenticatedUser, doLike)
-router.route("/comment").post(isAuthenticatedUser, doComment)
-router.route("/timeline").get(isAuthenticatedUser, getTimelinePost)
-router.route("/:id").get(isAuthenticatedUser, getPostById)
+router.route("/timeline").get(isAuthenticatedUser, getTimelinePost);
+router.route("/:id").get(isAuthenticatedUser, getPostById);
 
-
-
-module.exports = router
+module.exports = router;
