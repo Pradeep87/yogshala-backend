@@ -44,9 +44,16 @@ exports.deleteCommentOrReplyById = catchAsyncError(async (req, res, next) => {
     });
   }
 
+
+ 
+
+
   // Try to find the comment or reply by ID
   const comment = await Comment.findOneAndDelete({ _id: id, user: req.user._id });
   const reply = await Comment.findOneAndDelete({ _id: id, user: req.user._id, parentComment: { $exists: true } });
+  if (comment.replies.length > 0) {
+    await Comment.deleteMany({ _id: { $in: comment.replies } });
+  }
 
   if (!comment && !reply) {
     return res.status(404).json({
@@ -130,14 +137,6 @@ exports.doComment = catchAsyncError(async (req, res, next) => {
       commentContent,
       parentComment: parentCommentId,
     });
-
- await Post.findByIdAndUpdate(
-      reply.post,
-      {  $inc: { commentsCount: 1 } },
-      { new: true }
-    );
-
-
 
     parentComment.replies.push(reply._id);
     await parentComment.save();
