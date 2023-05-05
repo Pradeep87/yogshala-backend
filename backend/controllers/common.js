@@ -13,6 +13,7 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
+      sort: { createdAt: -1 },
       populate: [
         {
           path: "user",
@@ -20,6 +21,7 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
         },
         {
           path: "replies",
+          sort: { createdAt: -1 },
           populate: {
             path: "user",
             select: ["avatar", "firstName", "surname", "_id"],
@@ -72,7 +74,7 @@ exports.markNotificationAsSeen = async (req, res, next) => {
       notificationId,
       { isSeen: true },
       { new: true }
-    );
+    )
     if (!notification) {
       return res.status(404).json({
         success: false,

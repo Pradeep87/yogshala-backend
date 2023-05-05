@@ -7,8 +7,10 @@ const Notification = require("../models/notification");
 
 exports.getCommentByPost = catchAsyncError(async (req, res, next) => {
   const comments = await Comment.find({ post: req.params.id })
+    .sort({ createdAt: -1 })
     .populate({
       path: "replies",
+      sort: { createdAt: -1 },
       populate: {
         path: "user",
         select: ["avatar", "firstName", "surname", "_id"],
@@ -193,6 +195,7 @@ exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
+      sort: { createdAt: -1 },
       populate: [
         {
           path: "user",
@@ -200,6 +203,7 @@ exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
         },
         {
           path: "replies",
+          sort: { createdAt: -1 },
           populate: {
             path: "user",
             select: ["avatar", "firstName", "surname", "_id"],
