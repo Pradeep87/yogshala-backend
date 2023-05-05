@@ -13,7 +13,9 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
-      sort: { createdAt: -1 },
+      options: { 
+        sort: { createdAt: -1 } 
+      },
       populate: [
         {
           path: "user",
@@ -21,7 +23,9 @@ exports.getUserData = catchAsyncError(async (req, res, next) => {
         },
         {
           path: "replies",
-          sort: { createdAt: -1 },
+          options: { 
+            sort: { createdAt: -1 } 
+          },
           populate: {
             path: "user",
             select: ["avatar", "firstName", "surname", "_id"],

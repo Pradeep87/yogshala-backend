@@ -4,13 +4,18 @@ const Comment = require("../models/comments");
 const catchAsyncError = require("../middelwares/catchAsyncError");
 const cloudinary = require("cloudinary");
 const Notification = require("../models/notification");
+const mongoose=require('mongoose')
+
+
 
 exports.getCommentByPost = catchAsyncError(async (req, res, next) => {
   const comments = await Comment.find({ post: req.params.id })
     .sort({ createdAt: -1 })
     .populate({
       path: "replies",
-      sort: { createdAt: -1 },
+      options: { 
+        sort: { createdAt: -1 } 
+      },
       populate: {
         path: "user",
         select: ["avatar", "firstName", "surname", "_id"],
@@ -26,6 +31,59 @@ exports.getCommentByPost = catchAsyncError(async (req, res, next) => {
     comments,
   });
 });
+
+
+exports.deleteCommentOrReplyById = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  
+  // Check if the ID is valid
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid ID',
+    });
+  }
+
+  // Try to find the comment or reply by ID
+  const comment = await Comment.findOneAndDelete({ _id: id, user: req.user._id });
+  const reply = await Comment.findOneAndDelete({ _id: id, user: req.user._id, parentComment: { $exists: true } });
+
+  if (!comment && !reply) {
+    return res.status(404).json({
+      success: false,
+      message: 'Comment or reply not found',
+    });
+  }
+
+  // If a comment was deleted, decrement the commentsCount of the corresponding post
+  if (comment) {
+    const post = await Post.findByIdAndUpdate(comment.post, { $inc: { commentsCount: -1 } });
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found',
+      });
+    }
+  } else {
+    // If a reply was deleted, remove its ID from the parent comment's replies array
+    const parentComment = await Comment.findByIdAndUpdate(reply.parentComment, { $pull: { replies: reply._id } });
+    if (!parentComment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Parent comment not found',
+      });
+    }
+  }
+
+  res.json({
+    success: true,
+    message: 'Comment or reply deleted',
+  });
+});
+
+
+
+
 
 exports.doComment = catchAsyncError(async (req, res, next) => {
   const pusher = req.app.get("pusher");
@@ -72,6 +130,14 @@ exports.doComment = catchAsyncError(async (req, res, next) => {
       commentContent,
       parentComment: parentCommentId,
     });
+
+ await Post.findByIdAndUpdate(
+      reply.post,
+      {  $inc: { commentsCount: 1 } },
+      { new: true }
+    );
+
+
 
     parentComment.replies.push(reply._id);
     await parentComment.save();
@@ -195,7 +261,9 @@ exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
-      sort: { createdAt: -1 },
+      options: { 
+        sort: { createdAt: -1 } 
+      },
       populate: [
         {
           path: "user",
@@ -203,7 +271,9 @@ exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
         },
         {
           path: "replies",
-          sort: { createdAt: -1 },
+          options: { 
+            sort: { createdAt: -1 } 
+          },
           populate: {
             path: "user",
             select: ["avatar", "firstName", "surname", "_id"],
