@@ -193,10 +193,19 @@ exports.getTimelinePost = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: -1 })
     .populate({
       path: "comments",
-      populate: {
-        path: "user",
-        select: ["avatar", "firstName", "surname", "_id"],
-      },
+      populate: [
+        {
+          path: "user",
+          select: ["avatar", "firstName", "surname", "_id"],
+        },
+        {
+          path: "replies",
+          populate: {
+            path: "user",
+            select: ["avatar", "firstName", "surname", "_id"],
+          },
+        },
+      ],
     })
     .populate({
       path: "likes",
