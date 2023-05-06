@@ -6,7 +6,33 @@ const cloudinary = require("cloudinary");
 const Notification = require("../models/notification");
 const mongoose=require('mongoose')
 
+exports.deletePost = catchAsyncError(async (req, res, next) => {
+  const postId = req.params.id;
+  const userId = req.user._id;
 
+  const post = await Post.findOne({ _id: postId, user: userId });
+
+  if (!post) {
+    return res.status(404).json({ success: false, message: "Post not found" });
+  }
+
+  // Delete the post media from Cloudinary
+  if (post.postMedia) {
+    await cloudinary.uploader.destroy(post.postMedia.public_id);
+  }
+
+  // Delete the post likes and comments
+  await Like.deleteMany({ post: postId });
+  await Comment.deleteMany({ post: postId });
+  try {
+    // Call deleteOne() on the Mongoose model object instead of remove() on the document object
+    await Post.deleteOne({ _id: postId, user: userId });
+    res.status(200).json({ success: true, message: "Post deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 exports.getCommentByPost = catchAsyncError(async (req, res, next) => {
   const comments = await Comment.find({ post: req.params.id })
@@ -32,7 +58,6 @@ exports.getCommentByPost = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
 exports.deleteCommentOrReplyById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   
@@ -43,10 +68,6 @@ exports.deleteCommentOrReplyById = catchAsyncError(async (req, res, next) => {
       message: 'Invalid ID',
     });
   }
-
-
- 
-
 
   // Try to find the comment or reply by ID
   const comment = await Comment.findOneAndDelete({ _id: id, user: req.user._id });
@@ -87,10 +108,6 @@ exports.deleteCommentOrReplyById = catchAsyncError(async (req, res, next) => {
     message: 'Comment or reply deleted',
   });
 });
-
-
-
-
 
 exports.doComment = catchAsyncError(async (req, res, next) => {
   const pusher = req.app.get("pusher");
@@ -246,8 +263,40 @@ exports.getPostById = catchAsyncError(async (req, res, next) => {
 
 exports.getUserPost = catchAsyncError(async (req, res, next) => {
   const posts = await Post.find({ user: req.user._id })
-    .populate("likes")
-    .populate("comments");
+  .sort({ createdAt: -1 })
+    .populate({
+      path: "comments",
+      options: { 
+        sort: { createdAt: -1 } 
+      },
+      populate: [
+        {
+          path: "user",
+          select: ["avatar", "firstName", "surname", "_id"],
+        },
+        {
+          path: "replies",
+          options: { 
+            sort: { createdAt: -1 } 
+          },
+          populate: {
+            path: "user",
+            select: ["avatar", "firstName", "surname", "_id"],
+          },
+        },
+      ],
+    })
+    .populate({
+      path: "likes",
+      populate: {
+        path: "user",
+        select: ["avatar", "firstName", "surname", "_id"],
+      },
+    })
+    .populate({
+      path: "user",
+      select: ["avatar", "_id", "firstName", "surname"],
+    });
   res.json({
     success: true,
     total: posts.length,

@@ -6,12 +6,14 @@ const {
   getUserPost,
   doLike,
   doComment,
-  getTimelinePost,getCommentByPost,deleteCommentOrReplyById,
+  getTimelinePost,getCommentByPost,deleteCommentOrReplyById,deletePost,
   getPostById,
 } = require("../controllers/post");
 
 router.route("/").post(isAuthenticatedUser, doPost);
 router.route("/").get(isAuthenticatedUser, getUserPost);
+router.route("/:id").delete(isAuthenticatedUser, deletePost);
+
 router.route("/like").post(isAuthenticatedUser, doLike);
 router.route("/comment").post(isAuthenticatedUser, doComment);
 router.route("/comment/:id").get(isAuthenticatedUser, getCommentByPost);
