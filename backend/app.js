@@ -7,8 +7,7 @@ const bodyparser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const Pusher = require('pusher');
 
-
-
+const Comment=require("./models/comments")
 
 
 const userRoutes = require("./routes/user");
@@ -16,10 +15,6 @@ const postRoutes = require("./routes/post");
 const healthIssueRoutes = require("./routes/healthIssue");
 const treatmentPlan = require("./routes/treatmentPlan");
 const common = require("./routes/common");
-
-
-
-
 
 const pusher = new Pusher({
   appId: "1590103",
@@ -43,7 +38,11 @@ app.use("/api/healthissue", healthIssueRoutes);
 app.use("/api/treatmentPlan", treatmentPlan);
 app.use("/api/user", common);
 
-
+const changeStream = Comment.watch()
+changeStream.on('change', (event) => {
+  console.log(event)
+// your logic
+})
 
 
 
